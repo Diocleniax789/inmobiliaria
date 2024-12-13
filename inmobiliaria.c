@@ -106,7 +106,7 @@ struct inmueble * valida_avisos(struct inmueble *todos_los_avisos, int cantidad_
             printf("\n");
             printf("\n *** Aviso valido *** \n");
         } else{
-            sleep(2000);
+            Sleep(2000);
             printf("\n");
             printf("\n x Aviso no valido x \n");
         }
@@ -115,7 +115,7 @@ struct inmueble * valida_avisos(struct inmueble *todos_los_avisos, int cantidad_
     return avisos_validos;
 }
 
-int valido_tel_cat(char *telefono, char *categoria, char categorias[6][10]){
+int valida_tel_cat(char *telefono, char *categoria, char categorias[6][10]){
   int long_tel,i,contador_digitos = 0,pos = 0, categoria_encontrada = 0;
 
     long_tel = strlen(telefono);
@@ -137,10 +137,12 @@ int valido_tel_cat(char *telefono, char *categoria, char categorias[6][10]){
         }
     } while(pos < 6 && categoria_encontrada == 0);
 
-    categoria_encontrada == 1 && contador_digitos == long_tel ? return 1 : return 0;
+    if(categoria_encontrada == 1 && contador_digitos == long_tel){
+      return 1;
+    } else{ return 0; }
 }
 
-int valido_duplicidad(char *cod_usu, struct inmueble *todos_los_avisos){
+int valida_duplicidad_aviso(char *cod_usu, struct inmueble *todos_los_avisos){
     int usuario_duplicado = 0,i;
 
     for(i = 0; usuario_duplicado >= 0 && usuario_duplicado < 2; i++){
@@ -149,5 +151,24 @@ int valido_duplicidad(char *cod_usu, struct inmueble *todos_los_avisos){
         }
     }
 
-    usuario_duplicado === 1 ? return 1 : return 0;
+    if(usuario_duplicado == 1){
+      return 1 ;
+    } else{
+        return 0;
+    }
+}
+
+void imprime(struct inmueble *avisos_validos, int cantidad_avisos_validos){
+    int i;
+
+    printf("\n - LISTADO DE TODOS LOS AVISOS VALIDOS -");
+    printf("\n =======================================\n");
+    for(i = 0; i < cantidad_avisos_validos; i++){
+        printf("\n - Codigo de usuario: %s",avisos_validos[i].cod_usuario);
+        printf("\n - Descripcion del aviso: %s",avisos_validos[i].descrip_aviso);
+        printf("\n - Categoria: %s",avisos_validos[i].categoria);
+        printf("\n - Telefono: %s",avisos_validos[i].telefono);
+        printf("\n");
+        printf("\n ------------------------------------------------------------ \n");
+    }
 }
