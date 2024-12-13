@@ -4,171 +4,147 @@
 #include <windows.h>
 #include <ctype.h>
 
-struct inmueble{
+struct inmueble {
     char cod_usuario[10];
     char descrip_aviso[300];
     char categoria[10];
     char telefono[15];
 };
 
-void carga_avisos(struct inmueble*,int*);
+void carga_avisos(struct inmueble*, int*);
 void carga_categorias(char categorias[6][10]);
-struct inmueble * valida_avisos(struct inmueble*,int,int*,char categoria[6][10]);
-int valida_tel_cat(char*,char*,char[6][10]);
-int valida_duplicidad_aviso(char*,struct inmueble*);
-void imprime(struct inmueble*,int);
+struct inmueble* valida_avisos(struct inmueble*, int, int*, char categorias[6][10]);
+int valida_tel_cat(char*, char*, char[6][10]);
+int valida_duplicidad_aviso(char*, struct inmueble*, int);
+void imprime(struct inmueble*, int);
 
-int main(){
+int main() {
     struct inmueble todos_los_avisos[1500];
-    struct inmueble *avisos_validos;
-    int cantidad_avisos_cargados = 0,cantidad_avisos_validos = 0;
+    struct inmueble* avisos_validos;
+    int cantidad_avisos_cargados = 0, cantidad_avisos_validos = 0;
     char categorias[6][10];
 
-    carga_avisos(todos_los_avisos,&cantidad_avisos_cargados);
+    carga_avisos(todos_los_avisos, &cantidad_avisos_cargados);
     carga_categorias(categorias);
-    avisos_validos = valida_avisos(todos_los_avisos,cantidad_avisos_cargados,&cantidad_avisos_validos,categorias);
-    imprime(avisos_validos,cantidad_avisos_validos);
+    avisos_validos = valida_avisos(todos_los_avisos, cantidad_avisos_cargados, &cantidad_avisos_validos, categorias);
+    imprime(avisos_validos, cantidad_avisos_validos);
 
     return 0;
 }
 
-void carga_avisos(struct inmueble *todos_los_avisos, int *cantidad_avisos_cargados){
-    int i,j;
-    char caracter,aviso[300] = {0}, codigo[10] = {0};
+void carga_avisos(struct inmueble* todos_los_avisos, int* cantidad_avisos_cargados) {
+    int i;
+    char codigo[10];
 
-    for(i = 0; i < 1500; i++){
+    for (i = 0; i < 1500; i++) {
         system("cls");
         printf("\n - Para finalizar con la carga, simplemente a la hora de ingresar el codigo, escriba '*' - \n");
-        printf("\n Aviso nro %i",i + 1);
-        fflush(stdin);
+        printf("\n Aviso nro %i", i + 1);
         printf("\n + Codigo de usuario: ");
-        scanf("%s",codigo);
-        if(strcmp(codigo,"*") == 0){
+        scanf("%s", codigo);
+
+        if (strcmp(codigo, "*") == 0) {
             printf("\n Finalizando carga...");
             Sleep(2000);
             break;
-        } else{
-            strcpy(todos_los_avisos[i].cod_usuario,codigo);
-            printf("\n + Descripcion del aviso <presione ctrl + c para finalizar>: \n");
-            j = 0;
-            while((caracter = getchar()) != EOF && j < 300){
-                aviso[j] = caracter;
-                j++;
-            }
-            aviso[j] = '\0';
-            strcpy(todos_los_avisos[i].descrip_aviso,aviso);
+        } else {
+            strcpy(todos_los_avisos[i].cod_usuario, codigo);
+
+            printf("\n + Descripcion del aviso: ");
+            fflush(stdin);
+            fgets(todos_los_avisos[i].descrip_aviso, 300, stdin);
+            todos_los_avisos[i].descrip_aviso[strcspn(todos_los_avisos[i].descrip_aviso, "\n")] = '\0';
+
             printf("\n + Categoria: ");
-            scanf("%s",todos_los_avisos[i].categoria);
+            scanf("%s", todos_los_avisos[i].categoria);
             printf("\n + Telefono: ");
-            scanf("%s",todos_los_avisos[i].telefono);
+            scanf("%s", todos_los_avisos[i].telefono);
             printf("\n");
+
             (*cantidad_avisos_cargados)++;
             system("pause");
         }
     }
 }
 
-void carga_categorias(char categorias[6][10]){
+void carga_categorias(char categorias[6][10]) {
     int i;
 
-    for(i = 0; i < 6; i++){
+    for (i = 0; i < 6; i++) {
         system("cls");
-        fflush(stdin);
-        printf("\n Categoria nro %i",i + 1);
-        printf("\n");
+        printf("\n Categoria nro %i", i + 1);
         printf("\n + Escriba el nombre de la categoria: ");
-        scanf("%s",categorias[i]);
+        scanf("%s", categorias[i]);
         printf("\n");
         system("pause");
     }
 }
 
-struct inmueble * valida_avisos(struct inmueble *todos_los_avisos, int cantidad_avisos_cargados, int *cantidad_avisos_validos, char categorias[6][10]){
+struct inmueble* valida_avisos(struct inmueble* todos_los_avisos, int cantidad_avisos_cargados, int* cantidad_avisos_validos, char categorias[6][10]) {
     static struct inmueble avisos_validos[1500];
-    int i,valido_tel_cat,valido_duplicidad;
-    static char telefono[15] = {0};
-    static char categoria[10] = {0};
-    static char cod_usu[10] = {0};
+    int i, valido_tel_cat, valido_duplicidad;
 
-    for(i = 0; i < cantidad_avisos_cargados; i++){
-        strcpy(telefono,todos_los_avisos[i].telefono);
-        strcpy(categoria,todos_los_avisos[i].categoria);
-        strcpy(cod_usu, todos_los_avisos[i].cod_usuario);
-        valido_tel_cat = valida_tel_cat(telefono,categoria,categorias);
-        valido_duplicidad = valida_duplicidad_aviso(cod_usu,todos_los_avisos);
-        if(valido_tel_cat == 1 && valido_duplicidad == 1){
-            strcpy(avisos_validos[*cantidad_avisos_validos].cod_usuario,cod_usu);
-            strcpy(avisos_validos[*cantidad_avisos_validos].descrip_aviso,todos_los_avisos[i].descrip_aviso);
-            strcpy(avisos_validos[*cantidad_avisos_validos].categoria, categoria);
-            strcpy(avisos_validos[*cantidad_avisos_validos].telefono, telefono);
+    for (i = 0; i < cantidad_avisos_cargados; i++) {
+        valido_tel_cat = valida_tel_cat(todos_los_avisos[i].telefono, todos_los_avisos[i].categoria, categorias);
+        valido_duplicidad = valida_duplicidad_aviso(todos_los_avisos[i].cod_usuario, todos_los_avisos, cantidad_avisos_cargados);
+
+        if (valido_tel_cat && valido_duplicidad) {
+            strcpy(avisos_validos[*cantidad_avisos_validos].cod_usuario, todos_los_avisos[i].cod_usuario);
+            strcpy(avisos_validos[*cantidad_avisos_validos].descrip_aviso, todos_los_avisos[i].descrip_aviso);
+            strcpy(avisos_validos[*cantidad_avisos_validos].categoria, todos_los_avisos[i].categoria);
+            strcpy(avisos_validos[*cantidad_avisos_validos].telefono, todos_los_avisos[i].telefono);
             (*cantidad_avisos_validos)++;
-            Sleep(2000);
-            printf("\n");
-            printf("\n *** Aviso valido *** \n");
-        } else{
-            Sleep(2000);
-            printf("\n");
-            printf("\n x Aviso no valido x \n");
         }
     }
 
     return avisos_validos;
 }
 
-int valida_tel_cat(char *telefono, char *categoria, char categorias[6][10]){
-  int long_tel,i,contador_digitos = 0,pos = 0, categoria_encontrada = 0;
+int valida_tel_cat(char* telefono, char* categoria, char categorias[6][10]) {
+    int long_tel = strlen(telefono);
+    int contador_digitos = 0;
+    int categoria_encontrada = 0;
 
-    long_tel = strlen(telefono);
-
-    for(i = 0; i < long_tel; i++){
-        if(isdigit(telefono[i]) != 0){
+    for (int i = 0; i < long_tel; i++) {
+        if (isdigit(telefono[i])) {
             contador_digitos++;
-        } else{
+        } else {
             break;
         }
     }
 
-    do{
-        if(strcmp(categoria,categorias[pos]) == 0){
+    for (int i = 0; i < 6; i++) {
+        if (strcmp(categoria, categorias[i]) == 0) {
             categoria_encontrada = 1;
             break;
-        } else{
-            pos++;
         }
-    } while(pos < 6 && categoria_encontrada == 0);
+    }
 
-    if(categoria_encontrada == 1 && contador_digitos == long_tel){
-      return 1;
-    } else{ return 0; }
+    return (categoria_encontrada && contador_digitos == long_tel);
 }
 
-int valida_duplicidad_aviso(char *cod_usu, struct inmueble *todos_los_avisos){
-    int usuario_duplicado = 0,i;
+int valida_duplicidad_aviso(char* cod_usu, struct inmueble* todos_los_avisos, int cantidad_avisos_cargados) {
+    int usuario_duplicado = 0;
 
-    for(i = 0; usuario_duplicado >= 0 && usuario_duplicado < 2; i++){
-        if(strcmp(cod_usu,todos_los_avisos[i].cod_usuario) == 0){
+    for (int i = 0; i < cantidad_avisos_cargados; i++) {
+        if (strcmp(cod_usu, todos_los_avisos[i].cod_usuario) == 0) {
             usuario_duplicado++;
         }
     }
 
-    if(usuario_duplicado == 1){
-      return 1 ;
-    } else{
-        return 0;
-    }
+    return (usuario_duplicado == 1);
 }
 
-void imprime(struct inmueble *avisos_validos, int cantidad_avisos_validos){
-    int i;
-
+void imprime(struct inmueble* avisos_validos, int cantidad_avisos_validos) {
     printf("\n - LISTADO DE TODOS LOS AVISOS VALIDOS -");
     printf("\n =======================================\n");
-    for(i = 0; i < cantidad_avisos_validos; i++){
-        printf("\n - Codigo de usuario: %s",avisos_validos[i].cod_usuario);
-        printf("\n - Descripcion del aviso: %s",avisos_validos[i].descrip_aviso);
-        printf("\n - Categoria: %s",avisos_validos[i].categoria);
-        printf("\n - Telefono: %s",avisos_validos[i].telefono);
-        printf("\n");
+
+    for (int i = 0; i < cantidad_avisos_validos; i++) {
+        printf("\n - Codigo de usuario: %s", avisos_validos[i].cod_usuario);
+        printf("\n - Descripcion del aviso: %s", avisos_validos[i].descrip_aviso);
+        printf("\n - Categoria: %s", avisos_validos[i].categoria);
+        printf("\n - Telefono: %s", avisos_validos[i].telefono);
         printf("\n ------------------------------------------------------------ \n");
     }
 }
+
