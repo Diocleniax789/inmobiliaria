@@ -24,9 +24,9 @@ int main(){
     char categorias[6][10];
 
     carga_avisos(todos_los_avisos,&cantidad_avisos_cargados);
-  /*  carga_categorias(categorias);
+    carga_categorias(categorias);
     avisos_validos = valida_avisos(todos_los_avisos,cantidad_avisos_cargados,&cantidad_avisos_validos,categorias);
-    imprime(avisos_validos,cantidad_avisos_validos);*/
+    imprime(avisos_validos,cantidad_avisos_validos);
 
     return 0;
 }
@@ -64,6 +64,21 @@ void carga_avisos(struct inmueble *todos_los_avisos, int *cantidad_avisos_cargad
             (*cantidad_avisos_cargados)++;
             system("pause");
         }
+    }
+}
+
+void carga_categorias(char categorias[6][10]){
+    int i;
+
+    for(i = 0; i < 6; i++){
+        system("cls");
+        fflush(stdin);
+        printf("\n Categoria nro %i",i + 1);
+        printf("\n");
+        printf("\n + Escriba el nombre de la categoria: ");
+        scanf("%s",categorias[i]);
+        printf("\n");
+        system("pause");
     }
 }
 
