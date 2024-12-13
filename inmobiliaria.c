@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <windows.h>
+#include <ctype.h>
 
 struct inmueble{
     char cod_usuario[10];
@@ -82,3 +83,71 @@ void carga_categorias(char categorias[6][10]){
     }
 }
 
+struct inmueble * valida_avisos(struct inmueble *todos_los_avisos, int cantidad_avisos_cargados, int *cantidad_avisos_validos, char categorias[6][10]){
+    static struct inmueble avisos_validos[1500];
+    int i,valido_tel_cat,valido_duplicidad;
+    static char telefono[15] = {0};
+    static char categoria[10] = {0};
+    static char cod_usu[10] = {0};
+
+    for(i = 0; i < cantidad_avisos_cargados; i++){
+        strcpy(telefono,todos_los_avisos[i].telefono);
+        strcpy(categoria,todos_los_avisos[i].categoria);
+        strcpy(cod_usu, todos_los_avisos[i].cod_usuario);
+        valido_tel_cat = valida_tel_cat(telefono,categoria,categorias);
+        valido_duplicidad = valida_duplicidad_aviso(cod_usu,todos_los_avisos);
+        if(valido_tel_cat == 1 && valido_duplicidad == 1){
+            strcpy(avisos_validos[*cantidad_avisos_validos].cod_usuario,cod_usu);
+            strcpy(avisos_validos[*cantidad_avisos_validos].descrip_aviso,todos_los_avisos[i].descrip_aviso);
+            strcpy(avisos_validos[*cantidad_avisos_validos].categoria, categoria);
+            strcpy(avisos_validos[*cantidad_avisos_validos].telefono, telefono);
+            (*cantidad_avisos_validos)++;
+            Sleep(2000);
+            printf("\n");
+            printf("\n *** Aviso valido *** \n");
+        } else{
+            sleep(2000);
+            printf("\n");
+            printf("\n x Aviso no valido x \n");
+        }
+    }
+
+    return avisos_validos;
+}
+
+int valido_tel_cat(char *telefono, char *categoria, char categorias[6][10]){
+  int long_tel,i,contador_digitos = 0,pos = 0, categoria_encontrada = 0;
+
+    long_tel = strlen(telefono);
+
+    for(i = 0; i < long_tel; i++){
+        if(isdigit(telefono[i]) != 0){
+            contador_digitos++;
+        } else{
+            break;
+        }
+    }
+
+    do{
+        if(strcmp(categoria,categorias[pos]) == 0){
+            categoria_encontrada = 1;
+            break;
+        } else{
+            pos++;
+        }
+    } while(pos < 6 && categoria_encontrada == 0);
+
+    categoria_encontrada == 1 && contador_digitos == long_tel ? return 1 : return 0;
+}
+
+int valido_duplicidad(char *cod_usu, struct inmueble *todos_los_avisos){
+    int usuario_duplicado = 0,i;
+
+    for(i = 0; usuario_duplicado >= 0 && usuario_duplicado < 2; i++){
+        if(strcmp(cod_usu,todos_los_avisos[i].cod_usuario) == 0){
+            usuario_duplicado++;
+        }
+    }
+
+    usuario_duplicado === 1 ? return 1 : return 0;
+}
